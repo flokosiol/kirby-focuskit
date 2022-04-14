@@ -3,7 +3,7 @@
 return [
   'debug' => true,
   'thumbs' => [
-    // 'driver' => 'im',
-    // 'bin' => 'convert',
+    'driver' => 'im',
+    'bin' => 'convert',
   ]
 ];

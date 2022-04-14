@@ -1,20 +1,12 @@
 <?php
 
-namespace Kirby\Image\Darkroom;
+namespace Flokosiol\Focus;
 
 use Exception;
 use Kirby\Filesystem\F;
 use Kirby\Image\Darkroom;
+use Kirby\Image\Image;
 
-/**
- * ImageMagick
- *
- * @package   Kirby Image
- * @author    Bastian Allgeier <bastian@getkirby.com>
- * @link      https://getkirby.com
- * @copyright Bastian Allgeier GmbH
- * @license   https://opensource.org/licenses/MIT
- */
 class ImageMagick extends Darkroom
 {
     /**
@@ -73,6 +65,14 @@ class ImageMagick extends Darkroom
 
         // limit to single-threading to keep CPU usage sane
         $command .= ' -limit thread 1';
+
+        // add JPEG size hint to optimize CPU and memory usage
+        if (F::mime($file) === 'image/jpeg') {
+            // add hint only when downscaling
+            if ($options['scaleWidth'] < 1 && $options['scaleHeight'] < 1) {
+                $command .= ' -define ' . escapeshellarg(sprintf('jpeg:size=%dx%d', $options['width'], $options['height']));
+            }
+        }
 
         // append input file
         return $command . ' ' . escapeshellarg($file);
@@ -197,7 +197,7 @@ class ImageMagick extends Darkroom
         // focus cropping
         if (!empty($options['focus'])) {
             $focusCropValues = \Flokosiol\Focus::cropValues($options);
-            return '-thumbnail ' . escapeshellarg(sprintf('%sx%s^', $options['width'], $options['height'])) . ' -crop ' . escapeshellarg(sprintf('%sx%s+%s+%s', $focusCropValues['width'], $focusCropValues['height'], $focusCropValues['x1'], $focusCropValues['y1']));
+            return sprintf('-crop %sx%s+%s+%s -resize %sx%s^', $focusCropValues['width'], $focusCropValues['height'], $focusCropValues['x1'], $focusCropValues['y1'], $options['width'], $options['height']);
         }
 
         $gravities = [
@@ -223,7 +223,8 @@ class ImageMagick extends Darkroom
     }
 
     /**
-     * Creates the option for the output file
+     * Makes sure to not process too many images at once
+     * which could crash the server
      *
      * @param string $file
      * @param array $options
