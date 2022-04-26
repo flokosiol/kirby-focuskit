@@ -27,6 +27,7 @@ img {
 .original img {
   height: 200px;
   width: auto;
+  max-width: none;
   margin: 0;
 }
 

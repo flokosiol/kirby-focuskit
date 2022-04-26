@@ -50,14 +50,18 @@
 
         <?php
           $mods = [
-            'format' => 'webp',
-            'grayscale' => 'true',
-            'blur' => '50',
+            ['format' => 'webp'],
+            ['format' => 'avif'],
+            ['blur' => '50'],
           ];
         ?>
-        <?php foreach ($mods as $option => $value): ?>
+        <?php foreach ($mods as $mod): ?>
           <div class="mod">
-            <?php $img = $image->focusCrop(200,200,[$option => $value]) ?>
+            <?php
+              $img = $image->focusCrop(200,200,$mod);
+              $option = key($mod);
+              $value = $mod[$option];
+            ?>
             <?= $img ?>
             <dl class="info">
               <dt><?= ucfirst($option) ?></dt>
