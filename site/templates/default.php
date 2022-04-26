@@ -17,7 +17,7 @@
         <dt>Kirby</dt>
         <dd><?= Kirby::version() ?></dd>
         <dt>Focus</dt>
-        <dd>3.0.8</dd>
+        <dd><?= \Flokosiol\Focus::version() ?></dd>
       </dl>
     </div>
   </div>
